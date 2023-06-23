@@ -238,7 +238,7 @@ function dragstart(d) {
             return ""
         else:
             return (
-                f"{{source: '{self.label}', sourceid: {self.id}, target: '{self.false.label}', targetid: {self.false.id}, 'rela': '0', type: 'dashed'}},\n {{source: '{self.label}', sourceid: {self.id}, target: '{self.true.label}', targetid: {self.true.id}, 'rela': '1', type: 'resolved'}},\n"
+                f'{{source: "{self.label}", sourceid: {self.id}, target: "{self.false.label}", targetid: {self.false.id}, "rela": "0", type: "dashed"}},\n {{source: "{self.label}", sourceid: {self.id}, target: "{self.true.label}", targetid: {self.true.id}, "rela": "1", type: "resolved"}},\n'
                 + self.false.getLinks()
                 + self.true.getLinks()
             )
@@ -455,4 +455,7 @@ def eval(s: str):
 
 
 if __name__ == "__main__":
-    eval("(p->r)&(q<->(r|p))").output()
+    # eval("(p1->r1)&(q1<->(r1|p1))").output()
+    eval(
+        "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
+    ).output()

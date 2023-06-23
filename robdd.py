@@ -1,6 +1,5 @@
 from enum import Enum
 import os
-import re
 
 
 class nodeType(Enum):
@@ -238,10 +237,15 @@ TrueNode = Node("True", nodeType.boolean, None, None)
 
 
 def parser(s: str):
-    """parse a string into a logical tree
-
-    >>> parser("a")
-    Node(a, nodeType.variable, FalseNode, TrueNode)
+    """parse a string into a Node
+    >>> parser("T")
+    TrueNode
+    >>> parser("F")
+    FalseNode
+    >>> parser("abc")
+    Node("abc", nodeType.variable, FalseNode, TrueNode)
+    >>> parser("~a")
+    Node("->", nodeType.operator, Node("a", nodeType.variable, FalseNode, TrueNode), FalseNode)
     >>> parser("(p->r)&(q<->(r|p))")
     Node(
         "&",
@@ -265,28 +269,88 @@ def parser(s: str):
         ),
     )
     """
-
-    raise NotImplementedError
-
-
-Node(
-    "&",
-    nodeType.operator,
-    Node(
-        "->",
-        nodeType.operator,
-        Node("p", nodeType.variable, FalseNode, TrueNode),
-        Node("r", nodeType.variable, FalseNode, TrueNode),
-    ),
-    Node(
-        "<->",
-        nodeType.operator,
-        Node("q", nodeType.variable, FalseNode, TrueNode),
-        Node(
+    s = s.replace(" ", "")
+    if len(s) == 0:
+        return None
+    if s == "T":
+        return TrueNode
+    elif s == "F":
+        return FalseNode
+    elif s[0] == "~":
+        return Node("->", nodeType.operator, parser(s[1:]), FalseNode)
+    elif s[0] == "(":
+        i = 1
+        for j in range(1, len(s)):
+            if s[j] == "(":
+                i += 1
+            elif s[j] == ")":
+                i -= 1
+            if i == 0:
+                break
+        if j == len(s) - 1:
+            return parser(s[1:-1])
+        else:
+            left = parser(s[1:j])
+            if s[j + 1] == "&" or s[j + 1] == "|":
+                return Node(s[j + 1], nodeType.operator, left, parser(s[j + 2 :]))
+            elif s[j + 1 : j + 3] == "->":
+                return Node("->", nodeType.operator, left, parser(s[j + 3 :]))
+            elif s[j + 1 : j + 4] == "<->":
+                return Node("<->", nodeType.operator, left, parser(s[j + 4 :]))
+            else:
+                raise SyntaxError("Invalid input")
+    elif s.find("&") != -1:
+        return Node(
+            "&",
+            nodeType.operator,
+            parser(s[: s.find("&")]),
+            parser(s[s.find("&") + 1 :]),
+        )
+    elif s.find("|") != -1:
+        return Node(
             "|",
             nodeType.operator,
-            Node("r", nodeType.variable, FalseNode, TrueNode),
-            Node("p", nodeType.variable, TrueNode, FalseNode),
-        ),
-    ),
-).output()
+            parser(s[: s.find("|")]),
+            parser(s[s.find("|") + 1 :]),
+        )
+    elif s.find("->") != -1:
+        return Node(
+            "->",
+            nodeType.operator,
+            parser(s[: s.find("->")]),
+            parser(s[s.find("->") + 2 :]),
+        )
+    elif s.find("<->") != -1:
+        return Node(
+            "<->",
+            nodeType.operator,
+            parser(s[: s.find("<->")]),
+            parser(s[s.find("<->") + 3 :]),
+        )
+    else:
+        return Node(s, nodeType.variable, FalseNode, TrueNode)
+
+
+# Node(
+#     "&",
+#     nodeType.operator,
+#     Node(
+#         "->",
+#         nodeType.operator,
+#         Node("p", nodeType.variable, FalseNode, TrueNode),
+#         Node("r", nodeType.variable, FalseNode, TrueNode),
+#     ),
+#     Node(
+#         "<->",
+#         nodeType.operator,
+#         Node("q", nodeType.variable, FalseNode, TrueNode),
+#         Node(
+#             "|",
+#             nodeType.operator,
+#             Node("r", nodeType.variable, FalseNode, TrueNode),
+#             Node("p", nodeType.variable, TrueNode, FalseNode),
+#         ),
+#     ),
+# ).output()
+
+parser("(p->r)&(q<->(r|p))")

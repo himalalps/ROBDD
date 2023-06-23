@@ -1,31 +1,4 @@
-from enum import Enum
-import os
 
-
-class nodeType(Enum):
-    boolean = 0
-    variable = 1
-    operator = 2
-
-
-class Node:
-    def __init__(self, label: str, type: nodeType, false, true):
-        self.label = label
-        self.type = type
-        self.false = false
-        self.true = true
-
-    def __eq__(self, other):
-        return (
-            self.label == other.label
-            and self.type == other.type
-            and self.false == other.false
-            and self.true == other.true
-        )
-
-    def output(self):
-        """output the node in an html page"""
-        html = """
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>.link {  fill: none;  stroke: #666;  stroke-width: 1.5px;}#licensing {  fill: green;}.link.licensing {  stroke: green;}.link.resolved {  stroke-dasharray: 0,2 1;}circle {  fill: #ccc;  stroke: #333;  stroke-width: 1.5px;}text {  font: 12px Microsoft YaHei;  pointer-events: none;  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;}.linetext {    font-size: 12px Microsoft YaHei;}</style>
@@ -33,9 +6,10 @@ class Node:
 <input type="file" id="files" style="display: none" />
 <script src="d3.v3.min.js"></script>
 <script>
-        """
-        html += "\nvar links = [" + self.getLinks() + "];"
-        html += """
+        
+var links = [{source: 'a', target: 'False', 'rela': '0', type: 'dashed'},
+ {source: 'a', target: 'True', 'rela': '1', type: 'resolved'},
+];
 var nodes = {};
 links.forEach(function(link)
 {
@@ -210,28 +184,4 @@ function dragstart(d) {
 }
 
 </script>
-        """
-        cwd = os.path.dirname(__file__)
-        open(os.path.join(cwd, "graph.html"), "w").write(html)
-
-    def getLinks(self):
-        """get the links of the graph"""
-        if self.type == nodeType.boolean:
-            return ""
-        else:
-            return (
-                f"{{source: '{self.label}', target: '{self.false.label}', 'rela': '0', type: 'dashed'}},\n {{source: '{self.label}', target: '{self.true.label}', 'rela': '1', type: 'resolved'}},\n"
-                + self.false.getLinks()
-                + self.true.getLinks()
-            )
-
-
-def parser(s: str):
-    """parse a string into a logical tree"""
-    raise NotImplementedError
-
-
-FalseNode = Node("False", nodeType.boolean, None, None)
-TrueNode = Node("True", nodeType.boolean, None, None)
-node = Node("a", nodeType.variable, FalseNode, TrueNode)
-node.output()
+        

@@ -57,8 +57,8 @@ class Node:
 var nodes = {};
 links.forEach(function(link)
 {
-  link.source = nodes[link.sourceid] || (nodes[link.sourceid] = {name: link.source});
-  link.target = nodes[link.targetid] || (nodes[link.targetid] = {name: link.target});
+  link.source = nodes[link.sourceid] || (nodes[link.sourceid] = {name: link.source, id: link.sourceid});
+  link.target = nodes[link.targetid] || (nodes[link.targetid] = {name: link.target, id: link.targetid});
 });
 var width = 1920, height = 1080;
 var force = d3.layout.force()
@@ -143,7 +143,7 @@ var circle = svg.append("g").selectAll("circle")
 	{
         edges_line.style("stroke-width",function(line){
             console.log(line);
-            if(line.source.name==node.name || line.target.name==node.name){
+            if(line.source.id==node.id || line.target.id==node.id){
                 return 4;
             }else{
                 return 0.5;

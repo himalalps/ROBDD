@@ -39,7 +39,7 @@ class Node:
         return f'Node(\n{" " * indent}"{self.label}",\n{" " * indent}{self.type},\n{" " * indent}{self.false.__repr__(indent + 4)},\n{" " * indent}{self.true.__repr__(indent + 4)}\n{" " * (indent - 4)})'
 
     def output(self):
-        """output the node in an html page"""
+        """output the Node in an html page"""
         html = """
 <!DOCTYPE html>
 <meta charset="utf-8">
@@ -363,7 +363,63 @@ def parser(s: str):
         )
 
 
-if __name__ == "__main__":
-    import doctest
+def apply(n: Node):
+    """apply the rules to the Node"""
+    if n.type == nodeType.boolean:
+        return n
+    elif n.type == nodeType.operator:
+        if n.true.type == nodeType.operator:
+            n.true = apply(n.true)
+        if n.false.type == nodeType.operator:
+            n.false = apply(n.false)
+        label = n.label
+        if n.true.type == nodeType.boolean and n.false.type == nodeType.boolean:
+            if label == "&":
+                if n.false == TrueNode and n.true == TrueNode:
+                    return TrueNode
+                else:
+                    return FalseNode
+            elif label == "|":
+                if n.false == FalseNode and n.true == FalseNode:
+                    return FalseNode
+                else:
+                    return TrueNode
+            elif label == "->":
+                if n.false == TrueNode and n.true == FalseNode:
+                    return FalseNode
+                else:
+                    return TrueNode
+            elif label == "<->":
+                if n.false == n.true:
+                    return TrueNode
+                else:
+                    return FalseNode
+            else:
+                raise SyntaxError("Invalid input")
 
-    doctest.testmod()
+        if n.true.type == nodeType.boolean or (
+            n.false.type != nodeType.boolean and n.false.label < n.true.label
+        ):
+            falseNode = apply(Node(label, nodeType.operator, n.false.false, n.true))
+            trueNode = apply(Node(label, nodeType.operator, n.false.true, n.true))
+            if falseNode == trueNode:
+                return falseNode
+            return Node(n.false.label, nodeType.variable, falseNode, trueNode)
+        elif n.false.type == nodeType.boolean or n.false.label > n.true.label:
+            falseNode = apply(Node(label, nodeType.operator, n.false, n.true.false))
+            trueNode = apply(Node(label, nodeType.operator, n.false, n.true.true))
+            if falseNode == trueNode:
+                return falseNode
+            return Node(n.true.label, nodeType.variable, falseNode, trueNode)
+        else:
+            falseNode = apply(
+                Node(label, nodeType.operator, n.false.false, n.true.false)
+            )
+            trueNode = apply(Node(label, nodeType.operator, n.false.true, n.true.true))
+            if falseNode == trueNode:
+                return falseNode
+            return Node(n.true.label, nodeType.variable, falseNode, trueNode)
+
+
+if __name__ == "__main__":
+    apply(parser("(p->r)&(q<->(r|p))")).output()

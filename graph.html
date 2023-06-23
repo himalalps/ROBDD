@@ -7,24 +7,18 @@
 <script src="d3.v3.min.js"></script>
 <script>
         
-var links = [{source: '&', sourceid: 10, target: '->', targetid: 4, 'rela': '0', type: 'dashed'},
- {source: '&', sourceid: 10, target: '<->', targetid: 9, 'rela': '1', type: 'resolved'},
-{source: '->', sourceid: 4, target: 'p', targetid: 2, 'rela': '0', type: 'dashed'},
- {source: '->', sourceid: 4, target: 'r', targetid: 3, 'rela': '1', type: 'resolved'},
-{source: 'p', sourceid: 2, target: 'False', targetid: 0, 'rela': '0', type: 'dashed'},
- {source: 'p', sourceid: 2, target: 'True', targetid: 1, 'rela': '1', type: 'resolved'},
-{source: 'r', sourceid: 3, target: 'False', targetid: 0, 'rela': '0', type: 'dashed'},
- {source: 'r', sourceid: 3, target: 'True', targetid: 1, 'rela': '1', type: 'resolved'},
-{source: '<->', sourceid: 9, target: 'q', targetid: 5, 'rela': '0', type: 'dashed'},
- {source: '<->', sourceid: 9, target: '|', targetid: 8, 'rela': '1', type: 'resolved'},
-{source: 'q', sourceid: 5, target: 'False', targetid: 0, 'rela': '0', type: 'dashed'},
- {source: 'q', sourceid: 5, target: 'True', targetid: 1, 'rela': '1', type: 'resolved'},
-{source: '|', sourceid: 8, target: 'r', targetid: 6, 'rela': '0', type: 'dashed'},
- {source: '|', sourceid: 8, target: 'p', targetid: 7, 'rela': '1', type: 'resolved'},
-{source: 'r', sourceid: 6, target: 'False', targetid: 0, 'rela': '0', type: 'dashed'},
- {source: 'r', sourceid: 6, target: 'True', targetid: 1, 'rela': '1', type: 'resolved'},
-{source: 'p', sourceid: 7, target: 'False', targetid: 0, 'rela': '0', type: 'dashed'},
- {source: 'p', sourceid: 7, target: 'True', targetid: 1, 'rela': '1', type: 'resolved'},
+var links = [{source: 'p', sourceid: 61, target: 'q', targetid: 51, 'rela': '0', type: 'dashed'},
+ {source: 'p', sourceid: 61, target: 'q', targetid: 60, 'rela': '1', type: 'resolved'},
+{source: 'q', sourceid: 51, target: 'r', targetid: 46, 'rela': '0', type: 'dashed'},
+ {source: 'q', sourceid: 51, target: 'r', targetid: 50, 'rela': '1', type: 'resolved'},
+{source: 'r', sourceid: 46, target: 'True', targetid: 1, 'rela': '0', type: 'dashed'},
+ {source: 'r', sourceid: 46, target: 'False', targetid: 0, 'rela': '1', type: 'resolved'},
+{source: 'r', sourceid: 50, target: 'False', targetid: 0, 'rela': '0', type: 'dashed'},
+ {source: 'r', sourceid: 50, target: 'True', targetid: 1, 'rela': '1', type: 'resolved'},
+{source: 'q', sourceid: 60, target: 'False', targetid: 0, 'rela': '0', type: 'dashed'},
+ {source: 'q', sourceid: 60, target: 'r', targetid: 59, 'rela': '1', type: 'resolved'},
+{source: 'r', sourceid: 59, target: 'False', targetid: 0, 'rela': '0', type: 'dashed'},
+ {source: 'r', sourceid: 59, target: 'True', targetid: 1, 'rela': '1', type: 'resolved'},
 ];
 var nodes = {};
 links.forEach(function(link)

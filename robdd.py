@@ -1,5 +1,6 @@
 from enum import Enum
 import os
+import re
 
 
 class nodeType(Enum):
@@ -299,58 +300,19 @@ def parser(s: str):
                 return Node("<->", nodeType.operator, left, parser(s[j + 4 :]))
             else:
                 raise SyntaxError("Invalid input")
-    elif s.find("&") != -1:
-        return Node(
-            "&",
-            nodeType.operator,
-            parser(s[: s.find("&")]),
-            parser(s[s.find("&") + 1 :]),
-        )
-    elif s.find("|") != -1:
-        return Node(
-            "|",
-            nodeType.operator,
-            parser(s[: s.find("|")]),
-            parser(s[s.find("|") + 1 :]),
-        )
-    elif s.find("->") != -1:
-        return Node(
-            "->",
-            nodeType.operator,
-            parser(s[: s.find("->")]),
-            parser(s[s.find("->") + 2 :]),
-        )
-    elif s.find("<->") != -1:
-        return Node(
-            "<->",
-            nodeType.operator,
-            parser(s[: s.find("<->")]),
-            parser(s[s.find("<->") + 3 :]),
-        )
     else:
-        return Node(s, nodeType.variable, FalseNode, TrueNode)
+        iter = re.finditer(r"(&|\||->|<->)", s)
+        try:
+            op = next(iter)
+        except StopIteration:
+            return Node(s, nodeType.variable, FalseNode, TrueNode)
+        op = op.span()
+        return Node(
+            s[op[0] : op[1]],
+            nodeType.operator,
+            parser(s[: op[0]]),
+            parser(s[op[1] :]),
+        )
 
 
-# Node(
-#     "&",
-#     nodeType.operator,
-#     Node(
-#         "->",
-#         nodeType.operator,
-#         Node("p", nodeType.variable, FalseNode, TrueNode),
-#         Node("r", nodeType.variable, FalseNode, TrueNode),
-#     ),
-#     Node(
-#         "<->",
-#         nodeType.operator,
-#         Node("q", nodeType.variable, FalseNode, TrueNode),
-#         Node(
-#             "|",
-#             nodeType.operator,
-#             Node("r", nodeType.variable, FalseNode, TrueNode),
-#             Node("p", nodeType.variable, TrueNode, FalseNode),
-#         ),
-#     ),
-# ).output()
-
-parser("(p->r)&(q<->(r|p))")
+parser("(p->r)&(q<->(r|p))").output()

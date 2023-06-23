@@ -38,6 +38,9 @@ class Node:
                 return "FalseNode"
         return f'Node(\n{" " * indent}"{self.label}",\n{" " * indent}{self.type},\n{" " * indent}{self.false.__repr__(indent + 4)},\n{" " * indent}{self.true.__repr__(indent + 4)}\n{" " * (indent - 4)})'
 
+    def __hash__(self) -> int:
+        return hash(self.__repr__())
+
     def output(self):
         """output the Node in an html page"""
         html = """
@@ -421,5 +424,35 @@ def apply(n: Node):
             return Node(n.true.label, nodeType.variable, falseNode, trueNode)
 
 
+def returnSet(n: Node):
+    """return the set of variables in the Node"""
+    if n.type == nodeType.operator:
+        raise SyntaxError("Invalid input")
+    elif n.type == nodeType.boolean:
+        return set()
+    else:
+        return {n} | returnSet(n.true) | returnSet(n.false)
+
+
+def reduce(n: Node, s: set):
+    """reduce the Node to a simpler form according to set"""
+    if n.type == nodeType.boolean:
+        return n
+    if n.true.type != nodeType.boolean and n.true in s:
+        n.true = list(s)[list(s).index(n.true)]
+    if n.false.type != nodeType.boolean and n.false in s:
+        n.false = list(s)[list(s).index(n.false)]
+    n.true = reduce(n.true, s)
+    n.false = reduce(n.false, s)
+    return n
+
+
+def eval(s: str):
+    """apply elimination on the Node"""
+    n = apply(parser(s))
+    s = returnSet(n)
+    return reduce(n, s)
+
+
 if __name__ == "__main__":
-    apply(parser("(p->r)&(q<->(r|p))")).output()
+    eval("(p->r)&(q<->(r|p))").output()

@@ -1,5 +1,6 @@
 from enum import Enum
 import os
+import re
 
 
 class nodeType(Enum):
@@ -8,12 +9,18 @@ class nodeType(Enum):
     operator = 2
 
 
+cnt = 0
+
+
 class Node:
     def __init__(self, label: str, type: nodeType, false, true):
         self.label = label
         self.type = type
         self.false = false
         self.true = true
+        global cnt
+        self.id = cnt
+        cnt += 1
 
     def __eq__(self, other):
         return (
@@ -39,8 +46,8 @@ class Node:
 var nodes = {};
 links.forEach(function(link)
 {
-  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
-  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+  link.source = nodes[link.sourceid] || (nodes[link.sourceid] = {name: link.source});
+  link.target = nodes[link.targetid] || (nodes[link.targetid] = {name: link.target});
 });
 var width = 1920, height = 1080;
 var force = d3.layout.force()
@@ -220,18 +227,66 @@ function dragstart(d) {
             return ""
         else:
             return (
-                f"{{source: '{self.label}', target: '{self.false.label}', 'rela': '0', type: 'dashed'}},\n {{source: '{self.label}', target: '{self.true.label}', 'rela': '1', type: 'resolved'}},\n"
+                f"{{source: '{self.label}', sourceid: {self.id}, target: '{self.false.label}', targetid: {self.false.id}, 'rela': '0', type: 'dashed'}},\n {{source: '{self.label}', sourceid: {self.id}, target: '{self.true.label}', targetid: {self.true.id}, 'rela': '1', type: 'resolved'}},\n"
                 + self.false.getLinks()
                 + self.true.getLinks()
             )
 
 
+FalseNode = Node("False", nodeType.boolean, None, None)
+TrueNode = Node("True", nodeType.boolean, None, None)
+
+
 def parser(s: str):
-    """parse a string into a logical tree"""
+    """parse a string into a logical tree
+
+    >>> parser("a")
+    Node(a, nodeType.variable, FalseNode, TrueNode)
+    >>> parser("(p->r)&(q<->(r|p))")
+    Node(
+        "&",
+        nodeType.operator,
+        Node(
+            "->",
+            nodeType.operator,
+            Node("p", nodeType.variable, FalseNode, TrueNode),
+            Node("r", nodeType.variable, FalseNode, TrueNode),
+        ),
+        Node(
+            "<->",
+            nodeType.operator,
+            Node("q", nodeType.variable, FalseNode, TrueNode),
+            Node(
+                "|",
+                nodeType.operator,
+                Node("r", nodeType.variable, FalseNode, TrueNode),
+                Node("p", nodeType.variable, FalseNode, TrueNode),
+            ),
+        ),
+    )
+    """
+
     raise NotImplementedError
 
 
-FalseNode = Node("False", nodeType.boolean, None, None)
-TrueNode = Node("True", nodeType.boolean, None, None)
-node = Node("a", nodeType.variable, FalseNode, TrueNode)
-node.output()
+Node(
+    "&",
+    nodeType.operator,
+    Node(
+        "->",
+        nodeType.operator,
+        Node("p", nodeType.variable, FalseNode, TrueNode),
+        Node("r", nodeType.variable, FalseNode, TrueNode),
+    ),
+    Node(
+        "<->",
+        nodeType.operator,
+        Node("q", nodeType.variable, FalseNode, TrueNode),
+        Node(
+            "|",
+            nodeType.operator,
+            Node("r", nodeType.variable, FalseNode, TrueNode),
+            Node("p", nodeType.variable, TrueNode, FalseNode),
+        ),
+    ),
+).output()

@@ -30,6 +30,14 @@ class Node:
             and self.true == other.true
         )
 
+    def __repr__(self, indent=4):
+        if self.type == nodeType.boolean:
+            if self.label == "True":
+                return "TrueNode"
+            else:
+                return "FalseNode"
+        return f'Node(\n{" " * indent}"{self.label}",\n{" " * indent}{self.type},\n{" " * indent}{self.false.__repr__(indent + 4)},\n{" " * indent}{self.true.__repr__(indent + 4)}\n{" " * (indent - 4)})'
+
     def output(self):
         """output the node in an html page"""
         html = """
@@ -244,9 +252,24 @@ def parser(s: str):
     >>> parser("F")
     FalseNode
     >>> parser("abc")
-    Node("abc", nodeType.variable, FalseNode, TrueNode)
+    Node(
+        "abc",
+        nodeType.variable,
+        FalseNode,
+        TrueNode
+    )
     >>> parser("~a")
-    Node("->", nodeType.operator, Node("a", nodeType.variable, FalseNode, TrueNode), FalseNode)
+    Node(
+        "->",
+        nodeType.operator,
+        Node(
+            "a",
+            nodeType.variable,
+            FalseNode,
+            TrueNode
+        ),
+        FalseNode
+    )
     >>> parser("(p->r)&(q<->(r|p))")
     Node(
         "&",
@@ -254,20 +277,45 @@ def parser(s: str):
         Node(
             "->",
             nodeType.operator,
-            Node("p", nodeType.variable, FalseNode, TrueNode),
-            Node("r", nodeType.variable, FalseNode, TrueNode),
+            Node(
+                "p",
+                nodeType.variable,
+                FalseNode,
+                TrueNode
+            ),
+            Node(
+                "r",
+                nodeType.variable,
+                FalseNode,
+                TrueNode
+            )
         ),
         Node(
             "<->",
             nodeType.operator,
-            Node("q", nodeType.variable, FalseNode, TrueNode),
+            Node(
+                "q",
+                nodeType.variable,
+                FalseNode,
+                TrueNode
+            ),
             Node(
                 "|",
                 nodeType.operator,
-                Node("r", nodeType.variable, FalseNode, TrueNode),
-                Node("p", nodeType.variable, FalseNode, TrueNode),
-            ),
-        ),
+                Node(
+                    "r",
+                    nodeType.variable,
+                    FalseNode,
+                    TrueNode
+                ),
+                Node(
+                    "p",
+                    nodeType.variable,
+                    FalseNode,
+                    TrueNode
+                )
+            )
+        )
     )
     """
     s = s.replace(" ", "")
@@ -315,4 +363,7 @@ def parser(s: str):
         )
 
 
-parser("(p->r)&(q<->(r|p))").output()
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()

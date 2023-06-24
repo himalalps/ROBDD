@@ -332,6 +332,7 @@ def parser(s: str):
         return Node("->", nodeType.operator, parser(s[1:]), FalseNode)
     elif s[0] == "(":
         i = 1
+        # balance the parentheses
         for j in range(1, len(s)):
             if s[j] == "(":
                 i += 1
@@ -339,8 +340,10 @@ def parser(s: str):
                 i -= 1
             if i == 0:
                 break
-        if j == len(s) - 1:
+        if j == len(s) - 1 and s[j] == ")":
             return parser(s[1:-1])
+        elif j == len(s) - 1:
+            raise SyntaxError("Invalid input")
         else:
             left = parser(s[1:j])
             if s[j + 1] == "&" or s[j + 1] == "|":
@@ -377,7 +380,7 @@ def apply(n: Node):
             n.false = apply(n.false)
         label = n.label
         if n.true.type == nodeType.boolean and n.false.type == nodeType.boolean:
-            """return according to the truth table"""
+            # return according to the truth table
             if label == "&":
                 if n.false == TrueNode and n.true == TrueNode:
                     return TrueNode
@@ -456,7 +459,7 @@ def eval(s: str):
 
 
 if __name__ == "__main__":
-    eval('(p1"->r1)&(q1<->(r1|p1"))').output()
-    # eval(
-    # "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
-    # ).output()
+    # eval('(p1"->r1)&(q1<->(r1|p1"))').output()
+    eval(
+    "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
+    ).output()

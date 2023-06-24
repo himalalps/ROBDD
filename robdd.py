@@ -377,6 +377,7 @@ def apply(n: Node):
             n.false = apply(n.false)
         label = n.label
         if n.true.type == nodeType.boolean and n.false.type == nodeType.boolean:
+            """return according to the truth table"""
             if label == "&":
                 if n.false == TrueNode and n.true == TrueNode:
                     return TrueNode
@@ -449,13 +450,13 @@ def reduce(n: Node, s: set):
 
 def eval(s: str):
     """apply elimination on the Node"""
-    n = apply(parser(s))
+    n = apply(parser(s.replace('"', '\\"')))
     s = returnSet(n)
     return reduce(n, s)
 
 
 if __name__ == "__main__":
-    # eval("(p1->r1)&(q1<->(r1|p1))").output()
-    eval(
-        "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
-    ).output()
+    eval('(p1"->r1)&(q1<->(r1|p1"))').output()
+    # eval(
+    # "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
+    # ).output()

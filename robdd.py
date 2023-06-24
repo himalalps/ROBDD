@@ -248,6 +248,15 @@ FalseNode = Node("False", nodeType.boolean, None, None)
 TrueNode = Node("True", nodeType.boolean, None, None)
 
 
+def cmp(a: str, b: str):
+    """compare with regard to string end with \'"""
+    if a[-1] == "'":
+        a = "~" + a[:-1]
+    if b[-1] == "'":
+        b = "~" + b[:-1]
+    return a < b
+
+
 def parser(s: str):
     """parse a string into a Node
     >>> parser("T")
@@ -405,14 +414,14 @@ def apply(n: Node):
                 raise SyntaxError("Invalid input")
 
         if n.true.type == nodeType.boolean or (
-            n.false.type != nodeType.boolean and n.false.label < n.true.label
+            n.false.type != nodeType.boolean and cmp(n.false.label, n.true.label)
         ):
             falseNode = apply(Node(label, nodeType.operator, n.false.false, n.true))
             trueNode = apply(Node(label, nodeType.operator, n.false.true, n.true))
             if falseNode == trueNode:
                 return falseNode
             return Node(n.false.label, nodeType.variable, falseNode, trueNode)
-        elif n.false.type == nodeType.boolean or n.false.label > n.true.label:
+        elif n.false.type == nodeType.boolean or cmp(n.false.label, n.true.label):
             falseNode = apply(Node(label, nodeType.operator, n.false, n.true.false))
             trueNode = apply(Node(label, nodeType.operator, n.false, n.true.true))
             if falseNode == trueNode:
@@ -461,5 +470,5 @@ def eval(s: str):
 if __name__ == "__main__":
     # eval('(p1"->r1)&(q1<->(r1|p1"))').output()
     eval(
-    "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
+        "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
     ).output()

@@ -243,6 +243,13 @@ function dragstart(d) {
                 + self.true.getLinks()
             )
 
+    def labelAppend(self, s: str):
+        """append s to all the nodes' label"""
+        if self.type != nodeType.boolean:
+            self.label += s
+            self.false.labelAppend(s)
+            self.true.labelAppend(s)
+
 
 FalseNode = Node("False", nodeType.boolean, None, None)
 TrueNode = Node("True", nodeType.boolean, None, None)
@@ -496,12 +503,18 @@ def test():
         "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
     )
     P2 = eval("((~a1')&(~a2'))|((~a1')&a2')|(a1'&(~a2'))")
-    P = evalNode(Node("&", nodeType.operator, P1, P2))
-    Pe = findable(P)
-    V = evalNode(Node("&", nodeType.operator, t[0], Pe))
-    iter = evalNode(Node("&", nodeType.operator, V, t[0]))
-    iter.output("t1.html")
-    t.append(iter)
+    i = 1
+    while True:
+        P = evalNode(Node("&", nodeType.operator, P1, P2))
+        Pe = findable(P)
+        V = evalNode(Node("&", nodeType.operator, t[0], Pe))
+        iter = evalNode(Node("&", nodeType.operator, V, t[i - 1]))
+        iter.output(f"t{i}.html")
+        t.append(iter)
+        if t[i] == t[i - 1]:
+            break
+        i += 1
+        
 
 
 if __name__ == "__main__":

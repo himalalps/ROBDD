@@ -41,7 +41,7 @@ class Node:
     def __hash__(self) -> int:
         return hash(self.__repr__())
 
-    def output(self):
+    def output(self, name="graph.html"):
         """output the Node in an html page"""
         html = """
 <!DOCTYPE html>
@@ -230,7 +230,7 @@ function dragstart(d) {
 </script>
         """
         cwd = os.path.dirname(__file__)
-        open(os.path.join(cwd, "graph.html"), "w").write(html)
+        open(os.path.join(cwd, name), "w").write(html)
 
     def getLinks(self):
         """get the links of the graph"""
@@ -421,7 +421,7 @@ def apply(n: Node):
             if falseNode == trueNode:
                 return falseNode
             return Node(n.false.label, nodeType.variable, falseNode, trueNode)
-        elif n.false.type == nodeType.boolean or cmp(n.false.label, n.true.label):
+        elif n.false.type == nodeType.boolean or cmp(n.true.label, n.false.label):
             falseNode = apply(Node(label, nodeType.operator, n.false, n.true.false))
             trueNode = apply(Node(label, nodeType.operator, n.false, n.true.true))
             if falseNode == trueNode:
@@ -461,14 +461,49 @@ def reduce(n: Node, s: set):
 
 
 def eval(s: str):
-    """apply elimination on the Node"""
+    """apply elimination on the string"""
     n = apply(parser(s.replace('"', '\\"')))
     s = returnSet(n)
     return reduce(n, s)
 
 
-if __name__ == "__main__":
-    # eval('(p1"->r1)&(q1<->(r1|p1"))').output()
-    eval(
+def evalNode(n: Node):
+    """apply elimination on the Node"""
+    n = apply(n)
+    s = returnSet(n)
+    return reduce(n, s)
+
+
+def findable(n: Node):
+    """find the path able to be True"""
+    if n.true.type != nodeType.boolean:
+        n.true = findable(n.true)
+    if n.false.type != nodeType.boolean:
+        n.false = findable(n.false)
+    if n.label[-1] == "'" and (n.true == TrueNode or n.false == TrueNode):
+        return TrueNode
+    if n.true == n.false:
+        return n.true
+    return n
+
+
+def test():
+    """the example in the slide"""
+    t = []
+    t.append(eval("((~a1)&(~a2))|((~a1)&a2)|(a1&(~a2))"))
+    t[0].output("t0.html")
+    P1 = eval(
         "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
-    ).output()
+    )
+    P2 = eval("((~a1')&(~a2'))|((~a1')&a2')|(a1'&(~a2'))")
+    P = evalNode(Node("&", nodeType.operator, P1, P2))
+    Pe = findable(P)
+    V = evalNode(Node("&", nodeType.operator, t[0], Pe))
+    iter = evalNode(Node("&", nodeType.operator, V, t[0]))
+    iter.output("t1.html")
+    t.append(iter)
+
+
+if __name__ == "__main__":
+    test()
+    # eval('(p1"->r1)&(q1<->(r1|p1"))').output()

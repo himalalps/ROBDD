@@ -243,13 +243,6 @@ function dragstart(d) {
                 + self.true.getLinks()
             )
 
-    def labelAppend(self, s: str):
-        """append s to all the nodes' label"""
-        if self.type != nodeType.boolean:
-            self.label += s
-            self.false.labelAppend(s)
-            self.true.labelAppend(s)
-
 
 FalseNode = Node("False", nodeType.boolean, None, None)
 TrueNode = Node("True", nodeType.boolean, None, None)
@@ -494,6 +487,13 @@ def findable(n: Node):
     return n
 
 
+def labelAppend(n: Node, s: str):
+    """append s to all the nodes' label"""
+    if n.type == nodeType.boolean:
+        return n
+    return Node(n.label + s, n.type, labelAppend(n.false, s), labelAppend(n.true, s))
+
+
 def test():
     """the example in the slide"""
     t = []
@@ -502,9 +502,9 @@ def test():
     P1 = eval(
         "((~a1)&(~a2)&(~a1')&(~a2'))|((~a1)&(~a2)&(~a1')&a2')|((~a1)&(~a2)&a1'&(~a2'))|((~a1)&a2&a1'&a2')|(a1&(~a2)&(~a1')&a2')|(a1&(~a2)&a1'&a2')|(a1&a2&(~a1')&(~a2'))"
     )
-    P2 = eval("((~a1')&(~a2'))|((~a1')&a2')|(a1'&(~a2'))")
     i = 1
     while True:
+        P2 = labelAppend(t[i - 1], "'")
         P = evalNode(Node("&", nodeType.operator, P1, P2))
         Pe = findable(P)
         V = evalNode(Node("&", nodeType.operator, t[0], Pe))
@@ -514,7 +514,6 @@ def test():
         if t[i] == t[i - 1]:
             break
         i += 1
-        
 
 
 if __name__ == "__main__":

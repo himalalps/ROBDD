@@ -7,8 +7,10 @@
 <script src="d3.v3.min.js"></script>
 <script>
         
-var links = [{source: "a2", sourceid: 670, target: "True", targetid: 1, "rela": "0", type: "dashed"},
- {source: "a2", sourceid: 670, target: "False", targetid: 0, "rela": "1", type: "resolved"},
+var links = [{source: "a1", sourceid: 781, target: "a2", targetid: 779, "rela": "0", type: "dashed"},
+ {source: "a1", sourceid: 781, target: "False", targetid: 0, "rela": "1", type: "resolved"},
+{source: "a2", sourceid: 779, target: "True", targetid: 1, "rela": "0", type: "dashed"},
+ {source: "a2", sourceid: 779, target: "False", targetid: 0, "rela": "1", type: "resolved"},
 ];
 var nodes = {};
 links.forEach(function(link)
